@@ -1376,5 +1376,1596 @@ async function submitApplication(
       "Заявку успішно подано! Очікуй рішення.",
       "success"
     );
+event.target.reset();
 
+
+    showToast(
+      "Заявку подано!"
+    );
+
+
+  } catch (error) {
+
+    showResult(
+      result,
+      error.message,
+      "error"
+    );
+
+  } finally {
+
+    if (button) {
+      button.disabled = false;
+    }
+
+  }
+
+}
+
+
+/* =====================================================
+   APPLICATION STATUS
+===================================================== */
+
+async function checkApplicationStatus() {
+
+  if (!currentUser) {
+    return;
+  }
+
+
+  try {
+
+    const data =
+      await apiRequest(
+        "/applications/my"
+      );
+
+
+    const application =
+      data.application;
+
+
+    if (!application) {
+      return;
+    }
+
+
+    const result =
+      $("#applicationResult");
+
+
+    if (!result) {
+      return;
+    }
+
+
+    if (
+      application.status ===
+      "pending"
+    ) {
+
+      showResult(
+        result,
+        "Твоя заявка зараз розглядається.",
+        "success"
+      );
+
+    }
+
+
+    if (
+      application.status ===
+      "accepted"
+    ) {
+
+      showResult(
+        result,
+        "🎉 Твою заявку прийнято!",
+        "success"
+      );
+
+    }
+
+
+    if (
+      application.status ===
+      "rejected"
+    ) {
+
+      showResult(
+        result,
+        application.reason
+          ? `Заявку відхилено: ${application.reason}`
+          : "Заявку відхилено.",
+        "error"
+      );
+
+    }
+
+
+  } catch {
+    // Якщо endpoint недоступний,
+    // не ламаємо інтерфейс.
+  }
+
+}
+
+
+/* =====================================================
+   MESSAGES
+===================================================== */
+
+async function loadMessages() {
+
+  const container =
+    $("#messagesList");
+
+
+  if (!container) {
+    return;
+  }
+
+
+  if (!currentUser) {
+
+    container.innerHTML = `
+      <div class="empty-state">
+
+        <div class="empty-icon">
+          🔐
+        </div>
+
+        <h2>
+          Потрібен вхід
+        </h2>
+
+        <p>
+          Увійди в акаунт,
+          щоб переглядати повідомлення.
+        </p>
+
+        <br>
+
+        <button
+          class="primary-button"
+          id="messagesLoginButton"
+        >
+          Увійти
+        </button>
+
+      </div>
+    `;
+
+
+    $("#messagesLoginButton")
+      ?.addEventListener(
+        "click",
+        openAuthModal
+      );
+
+
+    updateMessageBadge(0);
+
+    return;
+  }
+
+
+  try {
+
+    const data =
+      await apiRequest(
+        "/messages"
+      );
+
+
+    const messages =
+      Array.isArray(data.messages)
+        ? data.messages
+        : [];
+
+
+    renderMessages(
+      messages
+    );
+
+
+    updateMessageBadge(
+      messages.filter(
+        message =>
+          !message.read
+      ).length
+    );
+
+
+  } catch (error) {
+
+    container.innerHTML = `
+      <div class="loading-card">
+        Не вдалося завантажити повідомлення.
+      </div>
+    `;
+
+  }
+
+}
+
+
+/* =====================================================
+   RENDER MESSAGES
+===================================================== */
+
+function renderMessages(messages) {
+
+  const container =
+    $("#messagesList");
+
+
+  if (!container) {
+    return;
+  }
+
+
+  if (!messages.length) {
+
+    container.innerHTML = `
+      <div class="empty-state">
+
+        <div class="empty-icon">
+          💬
+        </div>
+
+        <h2>
+          Повідомлень поки немає
+        </h2>
+
+        <p>
+          Коли Clidex Studio відповість
+          на твою заявку, повідомлення
+          з'явиться тут.
+        </p>
+
+      </div>
+    `;
+
+    return;
+  }
+
+
+  container.innerHTML =
+    messages.map(
+      message => `
+
+        <article
+          class="message-card ${
+            message.read
+              ? ""
+              : "unread"
+          }"
+        >
+
+          <div class="message-header">
+
+            <div class="message-title">
+              ${escapeHtml(
+                message.title ||
+                "Повідомлення від Clidex Studio"
+              )}
+            </div>
+
+            <div class="message-date">
+              ${escapeHtml(
+                formatDate(
+                  message.createdAt
+                )
+              )}
+            </div>
+
+          </div>
+
+
+          <div class="message-content">
+            ${escapeHtml(
+              message.content || ""
+            )}
+          </div>
+
+
+          ${
+            !message.read
+              ? `
+                <button
+                  class="message-read"
+                  data-message-id="${escapeHtml(
+                    String(message.id)
+                  )}"
+                >
+                  ✓ Позначити прочитаним
+                </button>
+              `
+              : `
+                <div class="message-read">
+                  ✓ Прочитано
+                </div>
+              `
+          }
+
+        </article>
+
+      `
+    ).join("");
+
+
+  container
+    .querySelectorAll(
+      ".message-read[data-message-id]"
+    )
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          markMessageRead(
+            button.dataset.messageId
+          );
+
+        }
+      );
+
+    });
+
+}
+
+
+/* =====================================================
+   READ MESSAGE
+===================================================== */
+
+async function markMessageRead(
+  messageId
+) {
+
+  try {
+
+    await apiRequest(
+      `/messages/${encodeURIComponent(
+        messageId
+      )}/read`,
+      {
+        method: "POST"
+      }
+    );
+
+
+    await loadMessages();
+
+
+  } catch (error) {
+
+    showToast(
+      error.message,
+      "error"
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   MESSAGE BADGE
+===================================================== */
+
+function updateMessageBadge(
+  count
+) {
+
+  const badge =
+    $("#messageBadge");
+
+
+  if (!badge) return;
+
+
+  if (count > 0) {
+
+    badge.textContent =
+      String(count);
+
+    badge.classList.remove(
+      "hidden"
+    );
+
+  } else {
+
+    badge.classList.add(
+      "hidden"
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   GAMES
+===================================================== */
+
+async function loadGames() {
+
+  const container =
+    $("#gamesList");
+
+
+  if (!container) {
+    return;
+  }
+
+
+  try {
+
+    const data =
+      await apiRequest(
+        "/games"
+      );
+
+
+    const games =
+      Array.isArray(data.games)
+        ? data.games
+        : [];
+
+
+    if (!games.length) {
+
+      container.innerHTML = `
+        <div class="game-placeholder">
+
+          <div class="game-icon">
+            🎮
+          </div>
+
+          <h2>
+            Ігор поки немає
+          </h2>
+
+          <p>
+            Коли ми додамо гру,
+            вона з'явиться тут.
+          </p>
+
+        </div>
+      `;
+
+      return;
+    }
+
+
+    container.innerHTML =
+      games.map(
+        game => `
+
+          <article class="info-card">
+
+            <div class="card-icon">
+              🎮
+            </div>
+
+            <h3>
+              ${escapeHtml(
+                game.title || "Гра"
+              )}
+            </h3>
+
+            <p>
+              ${escapeHtml(
+                game.description || ""
+              )}
+            </p>
+
+            ${
+              game.url
+                ? `
+                  <a
+                    class="news-game"
+                    href="${escapeHtml(game.url)}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    ▶ Запустити
+                  </a>
+                `
+                : ""
+            }
+
+          </article>
+
+        `
+      ).join("");
+
+
+  } catch {
+
+    /*
+      Якщо games endpoint ще не
+      підключений, показуємо базовий стан.
+    */
+
+    container.innerHTML = `
+      <div class="game-placeholder">
+
+        <div class="game-icon">
+          🎮
+        </div>
+
+        <h2>
+          Ігри Clidex Studio
+        </h2>
+
+        <p>
+          Посилання на ігри будуть
+          доступні після їх додавання
+          через панель розробника.
+        </p>
+
+      </div>
+    `;
+
+  }
+
+}
+
+
+/* =====================================================
+   DEVELOPER LOGIN
+===================================================== */
+
+async function developerLogin(
+  event
+) {
+
+  event.preventDefault();
+
+
+  const password =
+    $("#developerPassword")
+      ?.value || "";
+
+
+  const result =
+    $("#developerLoginResult");
+
+
+  if (!password) {
+
+    showResult(
+      result,
+      "Введи пароль.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const button =
+    event.submitter;
+
+  if (button) {
+    button.disabled = true;
+  }
+
+
+  try {
+
+    await apiRequest(
+      "/developer/login",
+      {
+        method: "POST",
+
+        body: JSON.stringify({
+          password
+        })
+      }
+    );
+
+
+    developerAuthenticated =
+      true;
+
+
+    $("#developerPassword").value =
+      "";
+
+
+    $("#developerLogin")
+      ?.classList
+      .add("hidden");
+
+
+    $("#developerPanel")
+      ?.classList
+      .remove("hidden");
+
+
+    showToast(
+      "Доступ до панелі отримано."
+    );
+
+
+    await loadApplications();
+
+
+  } catch (error) {
+
+    showResult(
+      result,
+      error.message,
+      "error"
+    );
+
+  } finally {
+
+    if (button) {
+      button.disabled = false;
+    }
+
+  }
+
+}
+
+
+/* =====================================================
+   DEVELOPER LOGOUT
+===================================================== */
+
+async function developerLogout() {
+
+  try {
+
+    await apiRequest(
+      "/developer/logout",
+      {
+        method: "POST"
+      }
+    );
+
+  } catch {
+    // очищення UI нижче
+  }
+
+
+  developerAuthenticated =
+    false;
+
+
+  $("#developerPanel")
+    ?.classList
+    .add("hidden");
+
+
+  $("#developerLogin")
+    ?.classList
+    .remove("hidden");
+
+
+  showToast(
+    "Вихід із панелі виконано."
+  );
+
+}
+
+
+/* =====================================================
+   LOAD APPLICATIONS
+===================================================== */
+
+async function loadApplications() {
+
+  const container =
+    $("#applicationsList");
+
+
+  if (!container) {
+    return;
+  }
+
+
+  if (!developerAuthenticated) {
+
+    container.innerHTML = `
+      <div class="loading-card">
+        Потрібна авторизація власника.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  try {
+
+    const data =
+      await apiRequest(
+        "/developer/applications"
+      );
+
+
+    const applications =
+      Array.isArray(data.applications)
+        ? data.applications
+        : [];
+
+
+    renderApplications(
+      applications
+    );
+
+
+  } catch (error) {
+
+    container.innerHTML = `
+      <div class="loading-card">
+        ${escapeHtml(
+          error.message
+        )}
+      </div>
+    `;
+
+  }
+
+}
+
+
+/* =====================================================
+   RENDER APPLICATIONS
+===================================================== */
+
+function renderApplications(
+  applications
+) {
+
+  const container =
+    $("#applicationsList");
+
+
+  if (!container) {
+    return;
+  }
+
+
+  if (!applications.length) {
+
+    container.innerHTML = `
+      <div class="empty-state">
+
+        <div class="empty-icon">
+          📋
+        </div>
+
+        <h2>
+          Заявок немає
+        </h2>
+
+        <p>
+          Нові заявки користувачів
+          з'являться тут.
+        </p>
+
+      </div>
+    `;
+
+    return;
+  }
+
+
+  container.innerHTML =
+    applications.map(
+      application => {
+
+        const role =
+          roleName(
+            application.role
+          );
+
+
+        const status =
+          statusName(
+            application.status
+          );
+
+
+        const avatar =
+          application.avatar
+            ? `
+              <img
+                src="${escapeHtml(
+                  application.avatar
+                )}"
+                alt=""
+              >
+            `
+            : "👤";
+
+
+        return `
+          <article
+            class="application-card"
+          >
+
+            <div class="application-user">
+
+              <div class="application-avatar">
+                ${avatar}
+              </div>
+
+              <div>
+
+                <strong>
+                  ${escapeHtml(
+                    application.nickname ||
+                    "Користувач"
+                  )}
+                </strong>
+
+                <small>
+                  ${escapeHtml(
+                    application.telegramUsername ||
+                    "Telegram не вказано"
+                  )}
+                </small>
+
+              </div>
+
+            </div>
+
+
+            <div class="application-info">
+
+              <span class="role-tag">
+                ${role}
+              </span>
+
+              <span
+                class="status-tag ${
+                  application.status ===
+                  "accepted"
+                    ? "status-accepted"
+                    : application.status ===
+                      "rejected"
+                      ? "status-rejected"
+                      : "status-pending"
+                }"
+              >
+                ${status}
+              </span>
+
+            </div>
+
+
+            ${
+              application.status ===
+              "pending"
+                ? `
+                  <div class="application-actions">
+
+                    <button
+                      class="accept-button"
+                      data-application-id="${escapeHtml(
+                        String(
+                          application.id
+                        )
+                      )}"
+                      data-action="accept"
+                    >
+                      ✓ Прийняти
+                    </button>
+
+                    <button
+                      class="reject-button"
+                      data-application-id="${escapeHtml(
+                        String(
+                          application.id
+                        )
+                      )}"
+                      data-action="reject"
+                    >
+                      ✕ Відхилити
+                    </button>
+
+                  </div>
+                `
+                : ""
+            }
+
+          </article>
+        `;
+
+      }
+    ).join("");
+
+
+  container
+    .querySelectorAll(
+      "[data-action]"
+    )
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          processApplication(
+            button.dataset.applicationId,
+            button.dataset.action
+          );
+
+        }
+      );
+
+    });
+
+}
+
+
+/* =====================================================
+   APPLICATION DECISION
+===================================================== */
+   async function processApplication(
+  applicationId,
+  action
+) {
+
+  if (!developerAuthenticated) {
+
+    showToast(
+      "Немає доступу.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  let reason = "";
+
+
+  if (action === "reject") {
+
+    reason =
+      prompt(
+        "Напиши причину відхилення:"
+      );
+
+
+    if (
+      reason === null
+    ) {
+      return;
+    }
+
+
+    reason =
+      reason.trim();
+
+
+    if (!reason) {
+
+      showToast(
+        "Причина не може бути порожньою.",
+        "error"
+      );
+
+      return;
+    }
+
+  }
+
+
+  if (
+    action === "accept"
+  ) {
+
+    const confirmed =
+      confirm(
+        "Прийняти цю заявку?"
+      );
+
+    if (!confirmed) {
+      return;
+    }
+
+  }
+
+
+  try {
+
+    await apiRequest(
+      `/developer/applications/${encodeURIComponent(
+        applicationId
+      )}/${action}`,
+      {
+        method: "POST",
+
+        body: JSON.stringify({
+          reason
+        })
+      }
+    );
+
+
+    showToast(
+      action === "accept"
+        ? "Заявку прийнято."
+        : "Заявку відхилено."
+    );
+
+
+    await loadApplications();
+
+
+  } catch (error) {
+
+    showToast(
+      error.message,
+      "error"
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   CREATE NEWS
+===================================================== */
+
+async function createNews(
+  event
+) {
+
+  event.preventDefault();
+
+
+  if (!developerAuthenticated) {
+
+    showToast(
+      "Немає доступу.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const title =
+    $("#newsTitle")
+      ?.value
+      .trim();
+
+  const content =
+    $("#newsContent")
+      ?.value
+      .trim();
+
+  const gameUrl =
+    $("#gameUrl")
+      ?.value
+      .trim();
+
+  const imageFile =
+    $("#newsImage")
+      ?.files?.[0];
+
+
+  const result =
+    $("#newsFormResult");
+
+
+  if (!title || !content) {
+
+    showResult(
+      result,
+      "Заповни заголовок та текст.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  const formData =
+    new FormData();
+
+
+  formData.append(
+    "title",
+    title
+  );
+
+  formData.append(
+    "content",
+    content
+  );
+
+  formData.append(
+    "gameUrl",
+    gameUrl
+  );
+
+
+  if (imageFile) {
+
+    if (
+      imageFile.size >
+      5 * 1024 * 1024
+    ) {
+
+      showResult(
+        result,
+        "Зображення має бути до 5 МБ.",
+        "error"
+      );
+
+      return;
+    }
+
+
+    formData.append(
+      "image",
+      imageFile
+    );
+
+  }
+
+
+  const button =
+    event.submitter;
+
+  if (button) {
+    button.disabled = true;
+  }
+
+
+  try {
+
+    await apiRequest(
+      "/developer/news",
+      {
+        method: "POST",
+        body: formData
+      }
+    );
+
+
+    showResult(
+      result,
+      "Новину успішно опубліковано!",
+      "success"
+    );
+
+
+    event.target.reset();
+
+
+    showToast(
+      "Новину опубліковано!"
+    );
+
+
+    await loadNews();
+
+
+  } catch (error) {
+
+    showResult(
+      result,
+      error.message,
+      "error"
+    );
+
+  } finally {
+
+    if (button) {
+      button.disabled = false;
+    }
+
+  }
+
+}
+
+
+/* =====================================================
+   REFRESH EVERYTHING
+===================================================== */
+
+async function refreshAll() {
+
+  await Promise.allSettled([
+    loadNews(),
+    loadMessages(),
+    loadGames()
+  ]);
+
+}
+
+
+/* =====================================================
+   CONNECTION STATUS
+===================================================== */
+
+async function checkConnection() {
+
+  const dot =
+    $("#connectionDot");
+
+  const text =
+    $("#connectionText");
+
+
+  try {
+
+    await apiRequest(
+      "/health"
+    );
+
+
+    if (dot) {
+      dot.classList.add(
+        "online"
+      );
+    }
+
+    if (text) {
+      text.textContent =
+        "Сервер онлайн";
+    }
+
+
+  } catch {
+
+    if (dot) {
+      dot.classList.remove(
+        "online"
+      );
+    }
+
+    if (text) {
+      text.textContent =
+        "Сервер недоступний";
+    }
+
+  }
+
+}
+
+
+/* =====================================================
+   UTILS
+===================================================== */
+
+function escapeHtml(value) {
+
+  if (
+    value === null ||
+    value === undefined
+  ) {
+    return "";
+  }
+
+
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+
+function formatDate(date) {
+
+  if (!date) {
+    return "—";
+  }
+
+
+  const parsed =
+    new Date(date);
+
+
+  if (
+    Number.isNaN(
+      parsed.getTime()
+    )
+  ) {
+    return "—";
+  }
+
+
+  return parsed.toLocaleString(
+    "uk-UA",
+    {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    }
+  );
+
+}
+
+
+function roleName(role) {
+
+  const roles = {
+    developer:
+      "💻 Розробник",
+
+    concept:
+      "💡 Концептор",
+
+    artist:
+      "🎨 Художник"
+  };
+
+
+  return (
+    roles[role] ||
+    "👤 Інша роль"
+  );
+
+}
+
+
+function statusName(status) {
+
+  const statuses = {
+    pending:
+      "⏳ Очікує",
+
+    accepted:
+      "✓ Прийнято",
+
+    rejected:
+      "✕ Відхилено"
+  };
+
+
+  return (
+    statuses[status] ||
+    "Невідомо"
+  );
+
+}
+
+
+/* =====================================================
+   MODAL EVENTS
+===================================================== */
+
+function setupModals() {
+
+  $$("[data-close-modal]")
+    .forEach(button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          closeModal(
+            button.dataset.closeModal
+          );
+
+        }
+      );
+
+    });
+
+
+  $$(".modal-backdrop")
+    .forEach(backdrop => {
+
+      backdrop.addEventListener(
+        "click",
+        () => {
+
+          const modal =
+            backdrop.closest(".modal");
+
+          if (modal) {
+            modal.classList.add(
+              "hidden"
+            );
+          }
+
+        }
+      );
+
+    });
+
+
+  document.addEventListener(
+    "keydown",
+    event => {
+
+      if (
+        event.key !== "Escape"
+      ) {
+        return;
+      }
+
+
+      $$(".modal")
+        .forEach(modal => {
+
+          if (
+            modal.id !==
+            "authModal"
+          ) {
+            modal.classList.add(
+              "hidden"
+            );
+          }
+
+        });
+
+    }
+  );
+
+}
+
+
+/* =====================================================
+   EVENT LISTENERS
+===================================================== */
+
+function setupEvents() {
+
+  $("#registerForm")
+    ?.addEventListener(
+      "submit",
+      registerUser
+    );
+
+
+  $("#loginForm")
+    ?.addEventListener(
+      "submit",
+      loginUser
+    );
+
+
+  $("#applicationForm")
+    ?.addEventListener(
+      "submit",
+      submitApplication
+    );
+
+
+  $("#developerLoginForm")
+    ?.addEventListener(
+      "submit",
+      developerLogin
+    );
+
+
+  $("#developerLogout")
+    ?.addEventListener(
+      "click",
+      developerLogout
+    );
+
+
+  $("#newsForm")
+    ?.addEventListener(
+      "submit",
+      createNews
+    );
+
+
+  $("#profileButton")
+    ?.addEventListener(
+      "click",
+      openProfile
+    );
+
+
+  $("#logoutButton")
+    ?.addEventListener(
+      "click",
+      logoutUser
+    );
+
+
+  $("#refreshNews")
+    ?.addEventListener(
+      "click",
+      loadNews
+    );
+
+
+  $("#refreshMessages")
+    ?.addEventListener(
+      "click",
+      loadMessages
+    );
+
+
+  $("#refreshApplications")
+    ?.addEventListener(
+      "click",
+      loadApplications
+    );
+
+}
+
+
+/* =====================================================
+   START
+===================================================== */
+
+async function init() {
+
+  startLoader();
+
+  setupNavigation();
+
+  setupAuthTabs();
+
+  setupAvatarPreview();
+
+  setupModals();
+
+  setupEvents();
+
+
+  /*
+    Спочатку перевіряємо,
+    чи є активна сесія.
+  */
+
+  await loadCurrentUser();
+
+
+  /*
+    Потім завантажуємо дані.
+  */
+
+  await refreshAll();
+
+
+  /*
+    Перевіряємо сервер.
+  */
+
+  await checkConnection();
+
+
+  /*
+    Періодично оновлюємо
+    новини та повідомлення.
+  */
+
+  setInterval(
+    async () => {
+
+      await loadNews();
+
+      if (currentUser) {
+        await loadMessages();
+      }
+
+    },
+    30000
+  );
+
+}
+
+
+document.addEventListener(
+  "DOMContentLoaded",
+  init
 
