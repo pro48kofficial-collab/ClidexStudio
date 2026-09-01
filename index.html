@@ -1,1 +1,1085 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
 
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+  >
+
+  <meta
+    name="description"
+    content="Clidex Studio — ігри, новини та команда розробників."
+  >
+
+  <title>Clidex Studio</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- =========================
+       LOADER
+  ========================== -->
+
+  <div id="loader" class="loader">
+    <div class="loader-logo">
+      <img
+        src="logo.png"
+        alt="Clidex Studio"
+        onerror="this.style.display='none'"
+      >
+
+      <div class="loader-fallback">
+        CLIDEX
+      </div>
+    </div>
+
+    <div class="loader-title">
+      Clidex Studio
+    </div>
+
+    <div class="loader-line">
+      <div id="loaderProgress"></div>
+    </div>
+
+    <div class="loader-text">
+      Завантаження...
+    </div>
+  </div>
+
+
+  <!-- =========================
+       APP
+  ========================== -->
+
+  <div id="app" class="app hidden">
+
+    <!-- HEADER -->
+
+    <header class="header">
+
+      <button
+        id="mobileMenuButton"
+        class="icon-button"
+        aria-label="Меню"
+      >
+        ☰
+      </button>
+
+      <div class="brand">
+        <div class="brand-logo">
+          <img
+            src="logo.png"
+            alt=""
+            onerror="this.style.display='none'"
+          >
+        </div>
+
+        <div>
+          <div class="brand-name">
+            Clidex Studio
+          </div>
+
+          <div class="brand-status">
+            Studio Portal
+          </div>
+        </div>
+      </div>
+
+      <button
+        id="profileButton"
+        class="profile-button"
+      >
+        <span id="headerAvatar">👤</span>
+        <span id="headerNickname">Гість</span>
+      </button>
+
+    </header>
+
+
+    <!-- SIDEBAR -->
+
+    <aside id="sidebar" class="sidebar">
+
+      <div class="sidebar-title">
+        НАВІГАЦІЯ
+      </div>
+
+      <button
+        class="nav-button active"
+        data-section="home"
+      >
+        <span>🏠</span>
+        Головна
+      </button>
+
+      <button
+        class="nav-button"
+        data-section="news"
+      >
+        <span>📰</span>
+        Новини
+      </button>
+
+      <button
+        class="nav-button"
+        data-section="applications"
+      >
+        <span>📋</span>
+        Анкети
+      </button>
+
+      <button
+        class="nav-button"
+        data-section="messages"
+      >
+        <span>💬</span>
+        Повідомлення
+
+        <span
+          id="messageBadge"
+          class="badge hidden"
+        >
+          0
+        </span>
+      </button>
+
+      <button
+        class="nav-button"
+        data-section="games"
+      >
+        <span>🎮</span>
+        Ігри
+      </button>
+
+      <div class="sidebar-divider"></div>
+
+      <button
+        class="nav-button"
+        data-section="developer"
+      >
+        <span>🛠️</span>
+        Розробник
+      </button>
+
+      <div class="sidebar-bottom">
+
+        <div class="connection-status">
+          <span
+            id="connectionDot"
+            class="connection-dot"
+          ></span>
+
+          <span id="connectionText">
+            Перевірка...
+          </span>
+        </div>
+
+      </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+      <!-- =====================
+           HOME
+      ====================== -->
+
+      <section
+        id="section-home"
+        class="section active"
+      >
+
+        <div class="hero">
+
+          <div class="hero-glow"></div>
+
+          <div class="hero-content">
+
+            <div class="hero-small">
+              ВІТАЄМО У
+            </div>
+
+            <h1 class="gradient-title">
+              Clidex Studio
+            </h1>
+
+            <p>
+              Створюємо ігри, проєкти та круті ідеї.
+            </p>
+
+            <div class="hero-buttons">
+
+              <button
+                class="primary-button"
+                data-section-target="news"
+              >
+                📰 Переглянути новини
+              </button>
+
+              <button
+                class="secondary-button"
+                data-section-target="applications"
+              >
+                🚀 Приєднатися до команди
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- QUICK CARDS -->
+
+        <div class="section-heading">
+
+          <div>
+            <h2>Clidex Studio</h2>
+            <p>
+              Все найважливіше в одному місці.
+            </p>
+          </div>
+
+        </div>
+
+
+        <div class="cards-grid">
+
+          <div
+            class="info-card clickable-card"
+            data-section-target="news"
+          >
+            <div class="card-icon">
+              📰
+            </div>
+
+            <h3>Новини</h3>
+
+            <p>
+              Слідкуй за останніми оновленнями
+              студії.
+            </p>
+          </div>
+
+
+          <div
+            class="info-card clickable-card"
+            data-section-target="games"
+          >
+            <div class="card-icon">
+              🎮
+            </div>
+
+            <h3>Наші ігри</h3>
+
+            <p>
+              Переглядай та запускай наші проєкти.
+            </p>
+          </div>
+
+
+          <div
+            class="info-card clickable-card"
+            data-section-target="applications"
+          >
+            <div class="card-icon">
+              👥
+            </div>
+
+            <h3>Команда</h3>
+
+            <p>
+              Хочеш створювати проєкти разом?
+              Подай заявку.
+            </p>
+          </div>
+
+
+          <div
+            class="info-card clickable-card"
+            data-section-target="messages"
+          >
+            <div class="card-icon">
+              💬
+            </div>
+
+            <h3>Повідомлення</h3>
+
+            <p>
+              Перевір відповіді від Clidex Studio.
+            </p>
+          </div>
+
+        </div>
+
+
+        <!-- LATEST NEWS -->
+
+        <div class="section-heading latest-heading">
+
+          <div>
+            <h2>Останні новини</h2>
+            <p>
+              Свіжі публікації Clidex Studio.
+            </p>
+          </div>
+
+          <button
+            class="small-button"
+            data-section-target="news"
+          >
+            Усі новини →
+          </button>
+
+        </div>
+
+        <div id="homeNews" class="news-preview-grid">
+          <div class="loading-card">
+            Завантаження новин...
+          </div>
+        </div>
+
+      </section>
+
+
+      <!-- =====================
+           NEWS
+      ====================== -->
+
+      <section
+        id="section-news"
+        class="section"
+      >
+
+        <div class="page-title">
+
+          <div>
+            <div class="page-kicker">
+              CLIDEX STUDIO
+            </div>
+
+            <h1>Новини</h1>
+
+            <p>
+              Останні події та оновлення студії.
+            </p>
+          </div>
+
+          <button
+            id="refreshNews"
+            class="small-button"
+          >
+            ↻ Оновити
+          </button>
+
+        </div>
+
+        <div
+          id="newsList"
+          class="news-list"
+        >
+          <div class="loading-card">
+            Завантаження...
+          </div>
+        </div>
+
+      </section>
+
+
+      <!-- =====================
+           APPLICATIONS
+      ====================== -->
+
+      <section
+        id="section-applications"
+        class="section"
+      >
+
+        <div class="page-title">
+
+          <div>
+            <div class="page-kicker">
+              JOIN CLIDEX
+            </div>
+
+            <h1>Анкети</h1>
+
+            <p>
+              Хочеш приєднатися до нашої команди?
+            </p>
+          </div>
+
+        </div>
+
+
+        <div class="application-layout">
+
+          <div class="form-card">
+
+            <div class="form-card-header">
+              <div class="big-icon">
+                🚀
+              </div>
+
+              <div>
+                <h2>Заявка до команди</h2>
+
+                <p>
+                  Заповни форму, і ми розглянемо
+                  твою заявку.
+                </p>
+              </div>
+            </div>
+
+
+            <form id="applicationForm">
+
+              <label>
+                Твій Telegram username
+              </label>
+
+              <input
+                id="telegramUsername"
+                type="text"
+                maxlength="100"
+                placeholder="@username"
+                required
+              >
+
+
+              <label>
+                Бажана роль
+              </label>
+
+              <select
+                id="wantedRole"
+                required
+              >
+                <option value="">
+                  Обери роль
+                </option>
+
+                <option value="developer">
+                  💻 Розробник
+                </option>
+
+                <option value="concept">
+                  💡 Концептор
+                </option>
+
+                <option value="artist">
+                  🎨 Художник
+                </option>
+              </select>
+
+
+              <button
+                type="submit"
+                class="primary-button full"
+              >
+                📤 Подати заявку
+              </button>
+
+            </form>
+
+            <div
+              id="applicationResult"
+              class="form-result hidden"
+            ></div>
+
+          </div>
+
+
+          <div class="info-panel">
+
+            <h2>Як це працює?</h2>
+
+            <div class="step">
+
+              <div class="step-number">
+                1
+              </div>
+
+              <div>
+                <h3>Заповни анкету</h3>
+
+                <p>
+                  Вкажи Telegram та роль,
+                  яку хочеш займати.
+                </p>
+              </div>
+
+            </div>
+
+
+            <div class="step">
+
+              <div class="step-number">
+                2
+              </div>
+
+              <div>
+                <h3>Очікуй рішення</h3>
+
+                <p>
+                  Власник Clidex Studio
+                  перегляне заявку.
+                </p>
+              </div>
+
+            </div>
+
+
+            <div class="step">
+
+              <div class="step-number">
+                3
+              </div>
+
+              <div>
+                <h3>Отримай повідомлення</h3>
+
+                <p>
+                  Результат з'явиться у твоєму
+                  розділі повідомлень.
+                </p>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =====================
+           MESSAGES
+      ====================== -->
+
+      <section
+        id="section-messages"
+        class="section"
+      >
+
+        <div class="page-title">
+
+          <div>
+            <div class="page-kicker">
+              YOUR INBOX
+            </div>
+
+            <h1>Повідомлення</h1>
+
+            <p>
+              Тут з'являтимуться відповіді
+              від Clidex Studio.
+            </p>
+          </div>
+
+          <button
+            id="refreshMessages"
+            class="small-button"
+          >
+            ↻ Оновити
+          </button>
+
+        </div>
+
+
+        <div
+          id="messagesList"
+          class="messages-list"
+        >
+
+          <div class="empty-state">
+            <div class="empty-icon">
+              💬
+            </div>
+
+            <h2>Повідомлень поки немає</h2>
+
+            <p>
+              Коли студія напише тобі,
+              повідомлення з'явиться тут.
+            </p>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =====================
+           GAMES
+      ====================== -->
+
+      <section
+        id="section-games"
+        class="section"
+      >
+
+        <div class="page-title">
+
+          <div>
+            <div class="page-kicker">
+              CLIDEX STUDIO
+            </div>
+
+            <h1>Наші ігри</h1>
+
+            <p>
+              Проєкти, створені нашою студією.
+            </p>
+          </div>
+
+        </div>
+
+
+        <div
+          id="gamesList"
+          class="games-grid"
+        >
+
+          <div class="game-placeholder">
+
+            <div class="game-icon">
+              🎮
+            </div>
+
+            <h2>Наші ігри</h2>
+
+            <p>
+              Посилання на ігри можна буде
+              додавати через панель розробника
+              разом із новинами.
+            </p>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =====================
+           DEVELOPER LOGIN
+      ====================== -->
+
+      <section
+        id="section-developer"
+        class="section"
+      >
+
+        <div
+          id="developerLogin"
+          class="developer-login"
+        >
+
+          <div class="developer-lock">
+            🔐
+          </div>
+
+          <div class="page-kicker">
+            PRIVATE AREA
+          </div>
+
+          <h1>Розробник</h1>
+
+          <p>
+            Цей розділ доступний тільки
+            власнику Clidex Studio.
+          </p>
+
+
+          <form id="developerLoginForm">
+
+            <label>
+              Пароль
+            </label>
+
+            <input
+              id="developerPassword"
+              type="password"
+              autocomplete="current-password"
+              placeholder="Введи пароль"
+              required
+            >
+
+            <button
+              type="submit"
+              class="primary-button full"
+            >
+              🔓 Увійти
+            </button>
+
+          </form>
+
+
+          <div
+            id="developerLoginResult"
+            class="form-result hidden"
+          ></div>
+
+        </div>
+
+
+        <!-- DEVELOPER PANEL -->
+
+        <div
+          id="developerPanel"
+          class="developer-panel hidden"
+        >
+
+          <div class="developer-header">
+
+            <div>
+              <div class="page-kicker">
+                OWNER CONTROL
+              </div>
+
+              <h1>Панель розробника</h1>
+
+              <p>
+                Керування Clidex Studio.
+              </p>
+            </div>
+
+            <button
+              id="developerLogout"
+              class="danger-button"
+            >
+              Вийти
+            </button>
+
+          </div>
+
+
+          <!-- CREATE NEWS -->
+
+          <div class="developer-card">
+
+            <div class="developer-card-title">
+              <span>📰</span>
+
+              <div>
+                <h2>Створити новину</h2>
+
+                <p>
+                  Нова публікація з'явиться
+                  для всіх користувачів.
+                </p>
+              </div>
+            </div>
+
+
+            <form id="newsForm">
+
+              <label>
+                Заголовок
+              </label>
+
+              <input
+                id="newsTitle"
+                type="text"
+                maxlength="150"
+                placeholder="Наприклад: Нове оновлення!"
+                required
+              >
+
+
+              <label>
+                Текст новини
+              </label>
+
+              <textarea
+                id="newsContent"
+                maxlength="5000"
+                rows="7"
+                placeholder="Напиши текст новини..."
+                required
+              ></textarea>
+
+
+              <label>
+                Посилання на гру
+                <span class="optional">
+                  необов'язково
+                </span>
+              </label>
+
+              <input
+                id="gameUrl"
+                type="url"
+                placeholder="https://..."
+              >
+
+
+              <label>
+                Зображення
+                <span class="optional">
+                  необов'язково
+                </span>
+              </label>
+
+              <input
+                id="newsImage"
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+              >
+
+
+              <button
+                type="submit"
+                class="primary-button"
+              >
+                🚀 Опублікувати
+              </button>
+
+            </form>
+
+
+            <div
+              id="newsFormResult"
+              class="form-result hidden"
+            ></div>
+
+          </div>
+
+
+          <!-- APPLICATIONS -->
+
+          <div class="developer-card">
+
+            <div class="developer-card-title">
+
+              <span>📋</span>
+
+              <div>
+                <h2>Заявки</h2>
+
+                <p>
+                  Тут бачиш усі заявки користувачів.
+                </p>
+              </div>
+
+            </div>
+
+
+            <button
+              id="refreshApplications"
+              class="small-button"
+            >
+              ↻ Оновити заявки
+            </button>
+
+
+            <div
+              id="applicationsList"
+              class="admin-applications"
+            >
+
+              <div class="loading-card">
+                Завантаження...
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+
+    <!-- =========================
+         PROFILE MODAL
+    ========================== -->
+
+    <div
+      id="profileModal"
+      class="modal hidden"
+    >
+
+      <div class="modal-backdrop"></div>
+
+      <div class="modal-box">
+
+        <button
+          class="modal-close"
+          data-close-modal="profileModal"
+        >
+          ×
+        </button>
+
+        <div class="modal-icon">
+          👤
+        </div>
+
+        <h2>Профіль</h2>
+
+        <div
+          id="profileInfo"
+          class="profile-info"
+        ></div>
+
+        <button
+          id="logoutButton"
+          class="danger-button full"
+        >
+          Вийти з акаунта
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- =========================
+         AUTH MODAL
+    ========================== -->
+
+    <div
+      id="authModal"
+      class="modal"
+    >
+
+      <div class="modal-backdrop"></div>
+
+      <div class="modal-box auth-box">
+
+        <div class="modal-icon">
+          🚀
+        </div>
+
+        <h2>Ласкаво просимо!</h2>
+
+        <p>
+          Створи свій профіль Clidex Studio.
+        </p>
+
+
+        <div class="auth-tabs">
+
+          <button
+            id="registerTab"
+            class="auth-tab active"
+          >
+            Реєстрація
+          </button>
+
+          <button
+            id="loginTab"
+            class="auth-tab"
+          >
+            Вхід
+          </button>
+
+        </div>
+
+
+        <!-- REGISTER -->
+
+        <form
+          id="registerForm"
+          class="auth-form"
+        >
+
+          <label>
+            Нік
+          </label>
+
+          <input
+            id="registerNickname"
+            type="text"
+            maxlength="30"
+            minlength="3"
+            placeholder="Твій нік"
+            required
+          >
+
+
+          <label>
+            Пароль
+          </label>
+
+          <input
+            id="registerPassword"
+            type="password"
+            minlength="6"
+            maxlength="100"
+            placeholder="Мінімум 6 символів"
+            required
+          >
+
+
+          <label>
+            Аватарка
+            <span class="optional">
+              необов'язково
+            </span>
+          </label>
+
+          <input
+            id="registerAvatar"
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+          >
+
+
+          <div
+            id="avatarPreview"
+            class="avatar-preview hidden"
+          ></div>
+
+
+          <button
+            type="submit"
+            class="primary-button full"
+          >
+            Створити профіль
+          </button>
+
+        </form>
+
+
+        <!-- LOGIN -->
+
+        <form
+          id="loginForm"
+          class="auth-form hidden"
+        >
+
+          <label>
+            Нік
+          </label>
+
+          <input
+            id="loginNickname"
+            type="text"
+            maxlength="30"
+            placeholder="Твій нік"
+            required
+          >
+
+
+          <label>
+            Пароль
+          </label>
+
+          <input
+            id="loginPassword"
+            type="password"
+            maxlength="100"
+            placeholder=
