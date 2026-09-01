@@ -989,6 +989,7 @@
         </div>
 
 
+
         <!-- REGISTER -->
 
         <form
@@ -1082,4 +1083,45 @@
             id="loginPassword"
             type="password"
             maxlength="100"
-            placeholder=
+            placeholder="Пароль"
+            required
+          >
+
+
+          <button
+            type="submit"
+            class="primary-button full"
+          >
+            Увійти
+          </button>
+
+        </form>
+
+
+        <div
+          id="authResult"
+          class="form-result hidden"
+        ></div>
+
+      </div>
+
+    </div>
+
+
+    <!-- TOAST -->
+
+    <div
+      id="toast"
+      class="toast hidden"
+    >
+      <span id="toastIcon">✓</span>
+      <span id="toastText"></span>
+    </div>
+
+  </div>
+
+
+  <script src="app.js"></script>
+
+</body>
+  </html>
